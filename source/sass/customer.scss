@@ -1,0 +1,69 @@
+.container {
+    margin-top: 20px;
+    padding: 0 30px;
+
+    .dataTables_wrapper .row {
+        padding: 7px 0;
+    }
+
+    .dataTables_info,
+    .dataTables_length label {
+        font-weight: bold !important;
+    }
+
+    .dataTables_filter,
+    .pagination {
+        padding-right: 15px;
+    }
+
+    .dataTables_scrollHeadInner thead th,
+    .dataTables_scrollBody tbody tr td:not(:last-child) {
+        text-align: center;
+    }
+}
+
+#button-container {
+    width: 30%;
+    display: flex;
+
+    .dt-buttons {
+        display: flex;
+        width: fit-content;
+    }
+
+    .btn-group .btn {
+        margin-right: 10px;
+        border-radius: 5px;
+    }
+}
+
+body.dark {
+    background-color: #505050;
+
+    .container {
+        color: #fff;
+    }
+
+    .dataTables_scrollHeadInner thead th {
+        background-color: gray;
+        color: #fff;
+    }
+
+    .dataTables_scrollBody tbody tr td {
+        background-color: #333;
+        color: #fff;
+    }
+
+    #button-container {
+        .btn-group button {
+            background: rgb(164, 206, 255) !important;
+            color: #000;
+        }
+
+        .btn-group button:hover {
+            background: #388e3c !important;
+            color: #fff;
+        }
+    }
+
+}

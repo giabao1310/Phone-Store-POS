@@ -1,0 +1,223 @@
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-autocolors"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-crosshair@1"></script>
+
+<link rel="stylesheet" href="/css/profile.css" />
+
+<%= sideLink = '' %> <%- include('../../partials/nav') %>
+<div class="container">
+    <h4 class="font-weight-bold py-3 px-3"><%= user.fullName %> Information</h4>
+    <div class="main-body">
+        <div class="row gutters-sm">
+            <div class="col-md-4 mb-3">
+                <div class="card">
+                    <div class="card-body align-items-center text-center">
+                        <a class="image-popup" href="<%= user.profilePicture %>" title="<%= user.fullName %>">
+                            <img
+                                class="img-fluid w-100 lazy rounded"
+                                data-src="<%= user.profilePicture ? user.profilePicture : 'https://placehold.co/200?text=Empty&font=roboto' %>"
+                                alt="Profile Picture"
+                                onerror="this.src='https://placehold.co/200?text=Not+available&font=roboto'"
+                            />
+                        </a>
+                        <div class="mt-3">
+                            <button
+                                class="btn btn-outline-primary"
+                                type="button"
+                                data-bs-toggle="modal"
+                                data-bs-target="#changeProfilePicModal"
+                            >
+                                Change Avatar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <div class="row"></div>
+                        <div class="col-sm-3">
+                            <h6 class="mb-0">Email</h6>
+                        </div>
+                        <div class="col-sm-9 text-secondary"><%= user.email %></div>
+                        <hr />
+                        <div class="row"></div>
+                        <div class="col-sm-3">
+                            <h6 class="mb-0">User Name</h6>
+                        </div>
+                        <div class="col-sm-9 text-secondary"><%= user.username %></div>
+                        <hr />
+                        <div class="row"></div>
+                        <div class="col-sm-3">
+                            <h6 class="mb-0">Full Name</h6>
+                        </div>
+                        <div class="col-sm-9 text-secondary"><%= user.fullName %></div>
+                        <hr />
+                        <div class="row"></div>
+                        <div class="col-sm-3">
+                            <h6 class="mb-0">Role</h6>
+                        </div>
+                        <div class="col-sm-9 text-secondary"><%= user.role %></div>
+                        <hr />
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <a class="btn btn-info" href="/change-password">Change password</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row gutters-sm">
+                    <canvas id="my-revenue-chart" width="400" height="400"></canvas>
+                </div>
+            </div>
+        </div>
+        <!-- Other content and modals -->
+
+        <div
+            class="modal fade"
+            id="changeProfilePicModal"
+            tabindex="-1"
+            aria-labelledby="changeProfilePicModalLabel"
+            aria-hidden="true"
+        >
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <form
+                        action="/upload-profile-pic"
+                        method="POST"
+                        enctype="multipart/form-data"
+                        autocomplete="off"
+                        data-toggle="formcache"
+                    >
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="changeProfilePicModalLabel">Change Profile Picture</h5>
+                            <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <input class="form-control" type="file" name="profilePic" accept="image/*" required="" />
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">
+                                Close
+                            </button>
+                            <button class="btn btn-outline-primary" type="submit">Save</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Change avatar modal -->
+<div
+    class="modal fade"
+    id="changeProfilePicModal"
+    tabindex="-1"
+    aria-labelledby="changeProfilePicModalLabel"
+    aria-hidden="true"
+>
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form
+                action="/upload-profile-pic"
+                method="POST"
+                enctype="multipart/form-data"
+                autocomplete="off"
+                data-toggle="formcache"
+            >
+                <div class="modal-header">
+                    <h5 class="modal-title" id="changeProfilePicModalLabel">Change Profile Picture</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input class="form-control" type="file" name="profilePic" accept="image/*" required />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-outline-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Additional scripts -->
+<script>
+    const ajaxResponse = fetch(`/reports/seller?from=${moment().format('YYYY-MM-DD')}&to=${moment().format('YYYY-MM-DD')}`)
+        .then((response) => response.json())
+        .then((ajaxResponse) => {
+            const labels = ajaxResponse.data.map((entry) => entry.seller.fullName)
+            const data = ajaxResponse.data.map((entry) => entry.totalAmountSold)
+
+            const ctx1 = document.getElementById('my-revenue-chart').getContext('2d')
+
+            const existingChart = Chart.getChart(ctx1)
+
+            if (existingChart) {
+                existingChart.destroy()
+            }
+
+            const salesChart = new Chart(ctx1, {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Customer',
+                            data: data,
+                            borderWidth: 2,
+                            borderSkipped: false,
+                            pointStyle: 'circle',
+                            pointRadius: 10,
+                            pointHoverRadius: 15,
+                        },
+                    ],
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            type: 'category',
+                        },
+                        y: {
+                            beginAtZero: true,
+                        },
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            text: 'Salespeople Income Chart',
+                            display: true,
+                        },
+                        colors: {
+                            enabled: false,
+                            forceOverride: true,
+                        },
+                        autocolors: {
+                            repeat: 2,
+                            offset: 5,
+                        },
+                        crosshair: {
+                            sync: {
+                                enabled: false,
+                                suppressTooltips: false,
+                            },
+                            zoom: {
+                                enabled: true,
+                                zoomboxBackgroundColor: 'rgba(66,133,244,0.2)',
+                                zoomboxBorderColor: '#48F',
+                                zoomButtonText: 'Reset Zoom',
+                                zoomButtonClass: 'reset-zoom btn btn-sm btn-outline-info',
+                            },
+                        },
+                    },
+                },
+            })
+        })
+
+    
+</script>

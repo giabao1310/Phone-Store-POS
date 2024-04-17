@@ -1,0 +1,247 @@
+<head>
+    <style type="text/css">
+        body.dark {
+            background-color: #999;
+        }
+
+        .card {
+            box-shadow: 0 20px 27px 0 rgb(0 0 0 / 5%);
+        }
+
+        .card {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            word-wrap: break-word;
+            background-color: #fff;
+            background-clip: border-box;
+            border: 0 solid rgba(0, 0, 0, 0.125);
+            border-radius: 1rem;
+        }
+
+        @media print {
+            thead {
+                display: table-header-group;
+            }
+
+            /* table {
+        page-break-before: always;
+      } */
+        }
+    </style>
+</head>
+
+<body>
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.1/css/all.min.css"
+        integrity="sha256-2XFplPlrFClt0bIdPgpz8H7ojnk10H69xRqd9+uTShA="
+        crossorigin="anonymous"
+    />
+    <%- include('../../partials/nav') %>
+    <div class="container my-3">
+        <div class="row">
+            <div class="col">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="invoice-title">
+                            <h4 class="float-end font-size-15">
+                                <% if (typeof order) { %> Invoice #<%= order.orderId %> <% } else { %> Invoice #0000 <%
+                                } %>
+
+                                <span class="badge bg-success font-size-12 ms-2">Paid</span>
+                            </h4>
+                            <div class="mb-4">
+                                <h2 class="mb-1 text-muted">TechHut.com</h2>
+                            </div>
+                            <div class="text-muted">
+                                <p class="mb-1">District 7, Ho Chi Minh</p>
+                                <p>
+                                    <i class="uil uil-phone me-1"></i>
+                                    0849 123 456
+                                </p>
+                            </div>
+                        </div>
+                        <hr class="my-4" />
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="text-muted">
+                                    <h5 class="font-size-16 mb-3">Billed To:</h5>
+                                    <a href="/customers/<%= order.customer._id %>">
+                                        <h5 class="font-size-15 mb-2">
+                                            <% if (typeof order) { %> <%= order.customer.fullName %> <% } else { %> fullName
+                                            <% } %>
+                                        </h5>
+                                        <p class="mb-1">
+                                            <% if (typeof order) { %> <%= order.customer.fullAddress %> <% } else { %>
+                                            address <% } %>
+                                        </p>
+                                        <p class="mb-1">
+                                            <% if (typeof order) { %> <%= order.customer.email %> <% } else { %> email <% }
+                                            %>
+                                        </p>
+                                        <p>
+                                            <% if (typeof order) { %> <%= order.customer.phone %> <% } else { %> phone <% }
+                                            %>
+                                        </p>
+                                    </a>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-6">
+                                <div class="text-muted text-sm-end">
+                                    <div>
+                                        <h5 class="font-size-15 mb-1">Invoice No:</h5>
+                                        <p>
+                                            <% if (typeof order) { %> <%= order.orderId %> <% } else { %> Invoice #0000
+                                            <% } %>
+                                        </p>
+                                    </div>
+                                    <div class="mt-4">
+                                        <h5 class="font-size-15 mb-1">Invoice Date:</h5>
+                                        <p>
+                                            <% if (typeof order) { %>
+                                            <!--  -->
+                                            <%= moment(order.createdAt).format('DD/MM/YYYY hh:mm') %>
+                                            <!--  -->
+                                            <% } else { %>
+                                            <!--  -->
+                                            <%=moment().format('DD/MM/YYYY hh:mm')%>
+                                            <!--  -->
+                                            <% } %>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="py-2">
+                            <h5 class="font-size-15">Order Summary</h5>
+                            <div class="table-responsive">
+                                <!-- table products list -->
+                                <table class="table align-middle table-nowrap table-centered mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-center" style="width: 70px">No.</th>
+                                            <th class="text-center">Item</th>
+                                            <th class="text-center" style="width: 120px">Quantity</th>
+                                            <!-- <th>Price</th> -->
+                                            <th class="text-end" style="width: 120px">Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% if (typeof order) { %> <% for( let index = 0; index < order.products.length;
+                                        index++ ) { %>
+                                        <!-- one product -->
+                                        <tr class="">
+                                            <!-- index -->
+                                            <th class="text-center" scope="row"><%= index + 1 %></th>
+
+                                            <!-- product name -->
+                                            <td>
+                                                <div class="row">
+                                                    <h6 class="text-truncate font-size-14 mb-1 text-wrap">
+                                                        <%= order.products[index].product.productName %>
+                                                    </h6>
+                                                    <!-- category -->
+                                                    <p class="text-muted mb-0 text-wrap">
+                                                        <%= order.products[index].product.category.name %>
+                                                    </p>
+                                                    <!-- sale price -->
+                                                    <p class="text-muted mb-0 text-wrap">
+                                                        <%= VND(order.products[index].salePrice).format() %>
+                                                    </p>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col">
+                                                        <% let src = order.products[index].product.imageUrls[0] %>
+                                                        <img width="200" height="200" src="<%= src %>" />
+                                                    </div>
+                                                </div>
+                                            </td>
+
+                                            <!-- quantity -->
+                                            <td class="text-center"><%= order.products[index].quantity %></td>
+
+                                            <!-- total quantity * sale price -->
+                                            <td class="text-end">
+                                                <%= VND(order.products[index].salePrice *
+                                                order.products[index].quantity).format() %>
+                                            </td>
+                                        </tr>
+                                        <% } %> <% } %>
+
+                                        <tr>
+                                            <th scope="row" colspan="3" class="text-end">Sub Total</th>
+                                            <td class="text-end">
+                                                <% if (typeof order) { %> <%= VND(order.subtotalAmount).format() %> <% }
+                                                else { %> <%= VND(0).format() %> <% } %>
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <th scope="row" colspan="3" class="border-0 text-end">Discount</th>
+                                            <td class="border-0 text-end">
+                                                - <% if (typeof order) { %> <%= VND(order.discount).format() %> <% }
+                                                else { %> <%= VND(0).format() %> <% } %>
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <th scope="row" colspan="3" class="border-0 text-end">Given</th>
+                                            <td class="border-0 text-end">
+                                                <% if (typeof order) { %> <%= VND(order.givenAmount).format() %> <% }
+                                                else { %> <%= VND(0).format() %> <% } %>
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <th scope="row" colspan="3" class="border-0 text-end">Change</th>
+                                            <td class="border-0 text-end">
+                                                <% if (typeof order) { %> <%= VND(order.changeAmount).format() %> <% }
+                                                else { %> <%= VND(0).format() %> <% } %>
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <th scope="row" colspan="3" class="border-0 text-end">Total</th>
+                                            <td class="border-0 text-end">
+                                                <h4 class="m-0 fw-semibold text-nowrap">
+                                                    <% if (typeof order) { %> <%= VND(order.totalAmount).format() %> <%
+                                                    } else { %> <%= VND(0).format() %> <% } %>
+                                                </h4>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="d-print-none mt-4">
+                                <div class="float-end">
+                                    <a class="btn btn-success me-1 print-btn" data-order-id="<%= order._id %>">
+                                        <i class="fa fa-print"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js"></script>
+    <iframe src="" frameborder="0" id="frMauIn" class="d-none" name="frMauIn" , width="300" , height="300"></iframe>
+    <script>
+        $(() => {
+            $('.print-btn').on('click', function () {
+                const orderId = $(this).data('order-id')
+                $('#frMauIn').attr('src', `/checkout/recipe/${orderId}`)
+                setTimeout(function () {
+                    window.frames['frMauIn'].focus()
+                    window.frames['frMauIn'].print()
+                }, 3000)
+            })
+        })
+    </script>
+</body>
